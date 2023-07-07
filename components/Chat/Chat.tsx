@@ -1,6 +1,6 @@
 import { Flex } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import ConversationModalProvider from "../ModalProvider/ModalProvider";
+import ModalProvider from "../ModalProvider/ModalProvider";
 import Conversations from "./Conversations/Conversations";
 import Feed from "./Feed/Feed";
 
@@ -11,10 +11,10 @@ interface ChatProps {
 const Chat: React.FC<ChatProps> = ({ session }) => {
   return (
     <Flex height="100vh">
-      <ConversationModalProvider>
+      <ModalProvider>
         <Conversations session={session} />
         <Feed session={session} />
-      </ConversationModalProvider>
+      </ModalProvider>
     </Flex>
   );
 };

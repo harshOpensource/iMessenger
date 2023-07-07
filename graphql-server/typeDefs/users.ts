@@ -3,7 +3,7 @@ import { gql } from "graphql-tag";
 
 const userTypeDefs = gql`
   type Query {
-    placeholder: String
+    searchUsers(username: String!): [User]
   }
   type Mutation {
     createUsername(username: String!): CreateUsernameResponse!
@@ -11,6 +11,10 @@ const userTypeDefs = gql`
   type CreateUsernameResponse {
     success: Boolean
     error: String
+  }
+  type User {
+    id: String
+    username: String
   }
 `;
 export default userTypeDefs;

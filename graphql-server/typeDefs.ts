@@ -1,18 +1,16 @@
+import { CreateUsernameResponse } from "./utils/types";
 import { gql } from "graphql-tag";
 
 const typeDefs = gql`
   type Query {
-    users: [User]
-    searchUser(value: String): [User]
+    placeholder: String
   }
-
-  type User {
-    id: ID
-    firstName: String
-    lastName: String
-    email: String
-    username: String
-    image: String
+  type Mutation {
+    createUsername(username: String!): CreateUsernameResponse!
+  }
+  type CreateUsernameResponse {
+    success: Boolean
+    error: String
   }
 `;
 export default typeDefs;

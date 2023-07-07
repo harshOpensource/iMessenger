@@ -2,6 +2,12 @@ import { Button, Center, Image, Input, Stack, Text } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useMutation } from "@apollo/client";
+import UserOperations from "../../graphql-client/operations/users";
+import {
+  CreateUsernameData,
+  CreateUsernameVariables,
+} from "@/graphql-client/utils/types";
 
 interface AuthProps {
   session: Session | null;
@@ -9,6 +15,31 @@ interface AuthProps {
 
 const Auth: React.FC<AuthProps> = ({ session }: AuthProps) => {
   const [username, setUsername] = useState<string>("");
+
+  const [createUsername, { data, loading, error }] = useMutation<
+    CreateUsernameData,
+    CreateUsernameVariables
+  >(UserOperations.Mutations.createUsername);
+
+  const OnSubmit = async () => {
+    if (!username) return;
+
+    try {
+      const { data } = await createUsername({
+        variables: {
+          username,
+        },
+      });
+
+      console.log(data);
+
+      if (!data?.createUsername) {
+        throw new Error();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Center height="100vh">
@@ -20,9 +51,13 @@ const Auth: React.FC<AuthProps> = ({ session }: AuthProps) => {
             <Input
               placeholder="Enter a Username"
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                setUsername(event.target.value)
+              }
             />
-            <Button width="100%">Create</Button>
+            <Button width="100%" isLoading={loading} onClick={OnSubmit}>
+              Create
+            </Button>
           </>
         ) : (
           <>

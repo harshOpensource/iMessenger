@@ -5,6 +5,10 @@ import styles from "@/styles/Home.module.css";
 import { useSession, signIn, signOut, getSession } from "next-auth/react";
 import { NextPageContext } from "next";
 import { Session } from "next-auth";
+import { Box } from "@chakra-ui/react";
+import Chat from "@/components/Chat/Chat";
+import Auth from "@/components/Auth/Auth";
+import { useRouter } from "next/router";
 
 interface Props {
   session: Session;
@@ -12,19 +16,17 @@ interface Props {
 
 export default function Home({}: Props) {
   const { data: session } = useSession();
-  console.log(session);
-  return (
-    <>
-      <>
-        Signed in as {session?.user?.email} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
 
-      <>
-        Not signed in <br />
-        <button onClick={() => signIn()}>Sign in</button>
-      </>
-    </>
+  const router = useRouter();
+
+  return (
+    <Box>
+      {session && session.user?.username ? (
+        <Chat session={session} />
+      ) : (
+        <Auth session={session} />
+      )}
+    </Box>
   );
 }
 

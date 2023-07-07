@@ -1,14 +1,11 @@
-import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import { useSession, signIn, signOut, getSession } from "next-auth/react";
+import Auth from "@/components/Auth/Auth";
+import Chat from "@/components/Chat/Chat";
+import { Box } from "@chakra-ui/react";
 import { NextPageContext } from "next";
 import { Session } from "next-auth";
-import { Box } from "@chakra-ui/react";
-import Chat from "@/components/Chat/Chat";
-import Auth from "@/components/Auth/Auth";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 interface Props {
   session: Session;
@@ -19,12 +16,17 @@ export default function Home({}: Props) {
 
   const router = useRouter();
 
+  const reloadSession = () => {
+    const event = new Event("visibilityChange");
+    document.dispatchEvent(event);
+  };
+
   return (
     <Box>
       {session && session.user?.username ? (
         <Chat session={session} />
       ) : (
-        <Auth session={session} />
+        <Auth session={session} reloadSession={reloadSession} />
       )}
     </Box>
   );

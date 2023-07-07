@@ -8,12 +8,14 @@ import {
   CreateUsernameData,
   CreateUsernameVariables,
 } from "@/graphql-client/utils/types";
+import toast from "react-hot-toast";
 
 interface AuthProps {
   session: Session | null;
+  reloadSession: () => void;
 }
 
-const Auth: React.FC<AuthProps> = ({ session }: AuthProps) => {
+const Auth: React.FC<AuthProps> = ({ session, reloadSession }: AuthProps) => {
   const [username, setUsername] = useState<string>("");
 
   const [createUsername, { data, loading, error }] = useMutation<
@@ -31,13 +33,23 @@ const Auth: React.FC<AuthProps> = ({ session }: AuthProps) => {
         },
       });
 
-      console.log(data);
-
       if (!data?.createUsername) {
         throw new Error();
       }
+
+      if (data.createUsername.error) {
+        const {
+          createUsername: { error },
+        } = data;
+        toast.error(error);
+        return;
+      }
+
+      toast.success("Username created successfully");
+      reloadSession();
     } catch (error) {
-      console.log(error);
+      toast.error("There was an error");
+      console.log("onSubmit error", error);
     }
   };
 

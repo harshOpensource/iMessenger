@@ -1,0 +1,26 @@
+{
+  "name": "imessenger",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.7.16",
+    "@apollo/server": "^4.7.5",
+    "@as-integrations/next": "^2.0.1",
+    "@types/node": "20.4.0",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "apollo-server-core": "^3.12.0",
+    "graphql": "^16.7.1",
+    "graphql-tag": "^2.12.6",
+    "next": "13.4.9",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.1.6"
+  }
+}

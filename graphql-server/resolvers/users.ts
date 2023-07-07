@@ -1,10 +1,10 @@
 import { Session } from "next-auth";
 import { PrismaClient } from "@prisma/client";
 import { getSession, useSession } from "next-auth/react";
-import { verifyAndCreateUsername } from "./utils/functions";
-import { CreateUsernameResponse, GraphQLContext } from "./utils/types";
+import { verifyAndCreateUsername } from "../utils/functions";
+import { CreateUsernameResponse, GraphQLContext } from "../utils/types";
 
-const resolvers = {
+const userResolvers = {
   Mutation: {
     createUsername: async function createUsername(
       _: any,
@@ -26,4 +26,4 @@ const resolvers = {
   },
 };
 
-export default resolvers;
+export default userResolvers;

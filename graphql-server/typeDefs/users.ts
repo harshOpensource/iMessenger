@@ -1,7 +1,7 @@
-import { CreateUsernameResponse } from "./utils/types";
+import { CreateUsernameResponse } from "../utils/types";
 import { gql } from "graphql-tag";
 
-const typeDefs = gql`
+const userTypeDefs = gql`
   type Query {
     placeholder: String
   }
@@ -13,4 +13,4 @@ const typeDefs = gql`
     error: String
   }
 `;
-export default typeDefs;
+export default userTypeDefs;

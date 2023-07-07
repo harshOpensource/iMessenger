@@ -1,18 +1,81 @@
+import {
+  GraphQLContext,
+  SubscriptionContext,
+} from "@/graphql-server/utils/types";
 import { ApolloServer } from "@apollo/server";
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
-import resolvers from "../../graphql-server/resolvers";
-import typeDefs from "../../graphql-server/typeDefs";
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "next-auth/react";
-import { Session, getServerSession } from "next-auth";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 import { PrismaClient } from "@prisma/client";
-import { GraphQLContext } from "@/graphql-server/utils/types";
-import { authOptions } from "./auth/[...nextauth]";
+import { PubSub } from "graphql-subscriptions";
+import { useServer } from "graphql-ws/lib/use/ws";
+import { createServer } from "http";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Session, getServerSession } from "next-auth";
+import { WebSocketServer } from "ws";
+import resolvers from "../../graphql-server/resolvers/index";
+import typeDefs from "../../graphql-server/typeDefs/index";
+import { authOptions } from "./auth/[...nextauth]";
 
-const apolloServer = new ApolloServer({
+const httpServer = createServer();
+
+const schema = makeExecutableSchema({
   typeDefs,
   resolvers,
+});
+
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: "api/graphql/subscriptions",
+});
+
+const getSubscriptionContext = async (
+  ctx: SubscriptionContext,
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<GraphQLContext> => {
+  ctx;
+  const session = await getServerSession(req, res, authOptions);
+  const pubsub = new PubSub();
+  const prisma = new PrismaClient();
+  // ctx is the graphql-ws Context where connectionParams live
+  if (ctx.connectionParams && ctx.connectionParams.session) {
+    const { session } = ctx.connectionParams;
+    return { session, prisma, pubsub };
+  }
+  // Otherwise let our resolvers know we don't have a current user
+  return { session: null, prisma, pubsub };
+};
+
+const serverCleanup = useServer(
+  {
+    schema,
+    context: (
+      ctx: SubscriptionContext,
+      req: NextApiRequest,
+      res: NextApiResponse
+    ) => {
+      // This will be run every time the client sends a subscription request
+      // Returning an object will add that information to our
+      // GraphQL context, which all of our resolvers have access to.
+      return getSubscriptionContext(ctx, req, res);
+    },
+  },
+  wsServer
+);
+
+const apolloServer = new ApolloServer({
+  schema,
+  plugins: [
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ],
 });
 
 export default startServerAndCreateNextHandler(apolloServer as any, {
@@ -22,7 +85,8 @@ export default startServerAndCreateNextHandler(apolloServer as any, {
   ): Promise<GraphQLContext> => {
     const session = await getServerSession(req, res, authOptions);
     const prisma = new PrismaClient();
+    const pubsub = new PubSub();
 
-    return { session: session as Session, prisma };
+    return { session: session as Session, prisma, pubsub };
   },
 });

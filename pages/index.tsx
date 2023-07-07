@@ -17,7 +17,7 @@ export default function Home({}: Props) {
   const router = useRouter();
 
   const reloadSession = () => {
-    const event = new Event("visibilityChange");
+    const event = new Event("visibilitychange");
     document.dispatchEvent(event);
   };
 
